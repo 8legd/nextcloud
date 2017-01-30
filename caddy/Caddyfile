@@ -1,0 +1,12 @@
+https://jenkins.{$CADDY_DOMAIN} {
+  proxy / banzai-jenkins:8080 {
+    fail_timeout 20s
+    transparent
+  }
+}
+https://portainer.{$CADDY_DOMAIN} {
+  proxy / banzai-portainer:9000 {
+    fail_timeout 20s
+    transparent
+  }
+}

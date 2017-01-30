@@ -1,0 +1,54 @@
+version: "2"
+
+services:
+
+  caddy:
+   container_name: "caddy"
+   logging:
+    driver: journald
+    options:
+     tag: "caddy"
+   build: caddy
+   volumes:
+    - /data/caddy:/root/.caddy
+   ports:
+    - "80:80"
+    - "443:443"
+   environment:
+    - "CADDY_DOMAIN=${CADDY_DOMAIN}"
+   entrypoint: "/usr/bin/caddy"
+   command: ["--conf", "/etc/Caddyfile", "--log", "stdout", "--email", "${CADDY_EMAIL}"]
+   depends_on:
+    - nextcloud
+   restart: always
+
+  nextcloud:
+   container_name: "nextcloud"
+   logging:
+    driver: journald
+    options:
+     tag: "nextcloud"
+   image: nextcloud:11.0.1-fpm
+   volumes:
+    - /data/nextcloud/apps:/var/www/html/apps
+    - /data/nextcloud/config:/var/www/html/config
+    - /data/nextcloud/data:/var/www/html/data
+   ports:
+    - "8080"
+    - "50000:50000"
+   depends_on:
+    - mariadb
+   restart: always
+
+  mariadb:
+   container_name: "mariadb"
+   logging:
+    driver: journald
+    options:
+     tag: "mariadb"    
+   image: mariadb:10.1.21
+   volumes:
+     - /data/mariadb:/var/lib/mysql
+   environment:
+     - MYSQL_ROOT_PASSWORD
+   restart: always
